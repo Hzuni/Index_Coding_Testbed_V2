@@ -1,0 +1,15 @@
+#!/bin/bash
+
+PERM=600
+NET_DIR=/etc/NetworkManager/system-connections/
+FILE=research-ap
+
+sudo cp research-ap $NET_DIR
+sudo chmod $PERM $NET_DIR/$FILE
+sudo chown root:root $NET_DIR/$FILE
+
+sudo service network-manager restart
+sleep 5
+echo "Setting IP variable..."
+export AP_IP=`ifconfig wlan6 2>/dev/null|awk '/inet addr:/ {print $2}'|sed 's/addr://'`
+echo $AP_IP

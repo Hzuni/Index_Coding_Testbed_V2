@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# This script will make sure that only single node process gets run
+
+LOGS="/home/blue/logs"
+BASE="/home/blue/Index_Coding_Testbed_V2"
+
+if [ ! -d $LOGS ]; then
+    echo "Making logs directory"
+    mkdir "$LOGS"
+fi
+
+LOG_FILE="$LOGS/`hostname`.log"
+PID_FILE="$LOGS/node.pid"
+
+if [ -f $LOG_FILE ]; then
+    rm $LOG_FILE
+fi
+
+touch $LOG_FILE
+
+#echo "Starting node with parameters: $@" >> $LOG_FILE
+
+if [ -f $PID_FILE ]; then
+    
+    # check to see if the old PID is still running
+    pid=`cat $PID_FILE`
+    kill -0 $pid > /dev/null 2>&1
+    not_running=$?
+
+    if [ $not_running -ne 0 ]; then
+        echo "Removing orphanged pid file" >> $LOG_FILE
+        rm $PID_FILE 
+    else 
+        echo "Node already running. Restarting" >> $LOG_FILE
+        echo "Node already running on `hostname`, Restarting..."
+        kill -9 $pid > /dev/null 2>&1
+        if [ $?  -gt 0 ]; then
+            echo "Failed to restart node"
+            exit 1
+        fi
+    fi
+fi
+#echo "reached"
+python3 "$BASE/python/experiment_Node.py" $1 $2 >> $LOG_FILE 2>&1 &
+pid=$!
+echo "$pid" > $PID_FILE
+

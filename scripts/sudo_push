@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+for node in $nodes
+do
+    echo "Pushing \"$@\" to $node"
+    ssh "blue@$node" "echo screen | sudo -S $@"
+done

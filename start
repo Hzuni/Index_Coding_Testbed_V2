@@ -1,0 +1,107 @@
+#!/bin/bash
+# This is the file that will eventually control all of th testing
+# This file will push all the code to the nodes and then run the tests. 
+# New code must be supported by this script
+
+NUM_ARGS=1
+#USAGE="Usage: start {xml-test-file} "
+USERS="blue"
+UPDATE_CODE=0
+FIND_NODES=1
+
+
+while getopts ":u :h" opt; do
+    case $opt in 
+    
+    h)
+        echo "-u Updates the nodes code"
+        echo "-h Displays help menu"
+        echo "-c Clears the time stamped AP Logs folder so only current run remains"
+        exit 0
+        ;;
+        
+    u)
+       UPDATE_CODE=1
+       ;;
+    c)
+        rm -r ./ap_logs/*
+        ;;
+    /?)
+        echo "Invalid option" -$OPTARG >&2
+    ;;
+    esac
+done
+
+TS=`date +"%T-%m-%d-%y"`
+LOG_DIR="/home/blue/Index_Coding_Testbed_V2/ap_logs/$TS"
+mkdir $LOG_DIR
+LOG_FILE="$LOG_DIR/AP.log"
+
+# lets explore the network and see what is connected
+if [ $FIND_NODES -gt 0 ]; then
+    echo "finding nodes..."
+    source scripts/get_hosts
+    echo "Found nodes: $nodes"
+fi
+
+# lets push the code to the nodes
+if [ $UPDATE_CODE -gt 0 ]; then
+    printf "updating node's code"
+    for node in $nodes; do
+        printf "."
+        ./scripts/sync $node > /dev/null
+   done
+    echo " done updating code"
+fi
+
+echo "Starting nodes..."
+ids=""
+echo $nodes
+node_num=0
+num_nodes=0
+
+for node in $nodes; do
+    num_nodes=`expr $num_nodes + 1`
+done
+
+
+
+echo "This was produced Test_Bed_V2" | tee $LOG_FILE
+
+for node in $nodes; do
+    # Get the machines node number
+    id=`ssh "$USERS@$node" hostname | cut -c6-`
+   
+
+    # Start the nodes
+    echo "Starting node-$id as node: $node_num" | tee $LOG_FILE
+
+    #Assign the node a test number and start the node
+        ssh "$USERS@$node" "./Index_Coding_Testbed_V2/node_start $node_num $num_nodes"
+        if [ $? -gt 0 ]; then
+        echo "Failed to start node, check node logs"
+         exit 1
+    fi
+
+    ids="$ids$node_num "
+    node_num=`expr $node_num + 1` 
+done
+echo "nodes started: $ids" | tee $LOG_FILE
+
+echo "Starting experiment."
+python3 python/experiment_AP.py "$ids" "$LOG_DIR" | tee -i $LOG_FILE
+    if [ $? -eq 0 ]; then
+        echo "Finished AP Code"
+    fi
+echo "Python testing completed"
+
+
+
+echo "Shutting down and grabbing log files..."
+for node in $nodes; do
+    ssh "$USERS@$node" "./Index_Coding_Testbed_V2/node_stop"
+    rsync -av "blue@$node:/home/blue/logs/*.log" $LOG_DIR 
+done
+
+echo "finished"
+

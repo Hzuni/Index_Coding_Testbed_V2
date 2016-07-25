@@ -1,0 +1,9 @@
+#!/bin/bash
+
+BASE_IP=10.42.0
+
+export nodes=`nmap -n -sn "$BASE_IP".0/24 --exclude "$BASE_IP".1 -oG - | awk '/Up$/{print $2}'`
+echo $nodes
+
+num=`echo $nodes | wc -w`
+echo "Count: $num"

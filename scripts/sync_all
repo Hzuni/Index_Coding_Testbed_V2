@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for node in $nodes; do
+    ./sync $node
+done
+

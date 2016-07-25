@@ -1,0 +1,17 @@
+[connection]
+id=research-ap
+uuid=deb4d703-7736-43f2-85ab-4daef0323080
+type=802-11-wireless
+
+[802-11-wireless]
+ssid=blue
+mode=ap
+band=bg
+channel=1
+mac-address=ec:08:6b:1e:7a:ea
+
+[ipv6]
+method=auto
+
+[ipv4]
+method=shared

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+LOGS="/home/blue/logs"
+PID_FILE="$LOGS/node.pid"
+
+if [ -f $PID_FILE ]; then
+    
+    # check to see if the old PID is still running
+    pid=`cat $PID_FILE`
+    kill -0 $pid > /dev/null 2>&1
+    not_running=$?
+
+    if [ $not_running -eq 0 ]; then
+        kill -9 $pid > /dev/null 2>&1
+        if [ $?  -gt 0 ]; then
+            echo "Failed to kill node"
+            exit 1
+        else
+            echo "Node stopped"
+        fi
+    fi
+    
+    rm $PID_FILE 
+fi
+
