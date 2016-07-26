@@ -27,7 +27,7 @@ def gen_message(seed):
     rand.seed(seed)
 
     #Building the message
-    intnd_recv = rand.randint(0,8)
+    intnd_recv = rand.randint(0,7)
     msg.append(intnd_recv)   
    #Intended reciepient of node message
     

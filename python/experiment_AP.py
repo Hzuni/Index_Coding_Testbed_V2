@@ -44,6 +44,8 @@ print("Starting experiment with nodes: ", nodes) # "using", ENCODE_ALGOS)
 
 # setup the ack listener
 #acks = ack_handler.AckListener(len(nodes))
+acks = ack_handler.AckListener(8)
+
 
 # setup shutdown listener
 def signal_handler(signal, frame):
@@ -54,7 +56,7 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 # start ack listener
-#acks.start()
+acks.start()
 
 # Setup the udp broadcaster
 broadcaster = udp.UdpBroadcaster(MY_IP)
@@ -104,7 +106,7 @@ rank_diff = 0
 msg_correlation = 0
 loss = 0
 saved_acks.append([])
-messages_to_create = 15
+messages_to_create = 8
    
 
 # first round is always round robin
@@ -128,12 +130,12 @@ for message in msgs:
     sent += 1
     sleep(0.05)
 
-#for i in range(len(nodes)):
-#    if (acks.acks[i][i] == 1):
-#        lost_by_owner += 1
+for i in range(8):
+    if (acks.acks[i][i] == 1):
+        lost_by_owner += 1
 
-#print (lost_by_owner)       
+print (lost_by_owner)       
 print("\nShutting down...\n")
-#acks.stop()
 sys.stdout.flush()
+acks.stop()
 sys.exit(0)

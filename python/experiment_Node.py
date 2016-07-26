@@ -11,8 +11,8 @@ if (len(sys.argv) < 3):
 
 me = int(sys.argv[1])
 num_nodes = int(sys.argv[2])
-#
-#ack_sender = AckSender("10.42.0.1")
+
+ack_sender = AckSender("10.42.0.1")
 #above meant to send acknowldgements to the AP bcast address
 
 rec = UdpReceiver(5000)
@@ -24,15 +24,21 @@ sys.stdout.flush()
 
 while True:
     # Get a message
+    recv_msgs = []
     msg = bytearray(rec.rec(100000))
-    print (msg)
-    sys.stdout.flush()
     #tid = messages.get_test(msg)
     #coeffs = messages.get_coeffs(msg, num_nodes)
     #data = messages.get_data(msg)
-    message_id = msg[1] 
-    print (data)
-    sys.stdout.flush()
+    intnd_recep = msg[0]
+    msg_id = 0 
+    byte_sized_msg = msg[1] 
+    print(intnd_recep, byte_sized_msg) 
+    sys.stdout.flush() 
+   
+    lst_rcv_msg = (intnd_recep,msg_id)
+    recv_msgs.append(lst_rcv_msg)
+
+
     #intended to transmit a message with the message id 
 #    ack_sender.ack(me,message_id)
 
@@ -61,7 +67,8 @@ while True:
 #    if coeffs[me] != 0 and decoder.can_decode(me):
 #        new_decoded.append(me)
 
-#    for decoded in new_decoded:
-#        ack_sender.ack(me, decoded)
+    for message in recv_msgs:
+        ack_sender.ack(me, message[0])
+        recv_msgs.remove(message)
 
 

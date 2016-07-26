@@ -16,7 +16,7 @@ class AckListener:
        
         # UDP socket setup
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.bind(("", ACK_PORT))
+        self.sock.bind(("10.42.0.1", ACK_PORT))
         self.sock.settimeout(ACK_TIMEOUT)
         self.timeouts = 0
         
@@ -35,13 +35,13 @@ class AckListener:
             ack = None 
             try:
                 ack = self.sock.recvfrom(ACK_BUFFER)
-                #print("Got ack:", ack)
+                print("Got ack:", ack)
                 data = ack[0]
                 
                 # break of the message into it's info
                 node = int (data[0])
                 msgId = int (data[1])
-                
+                 
                 # record the ack
                 self.acks[node][msgId] = 2
 
