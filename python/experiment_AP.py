@@ -6,6 +6,8 @@ import signal
 import sys
 import messages
 from time import sleep,time
+import SVD
+import numpy as np
 #import matplotlib.pyplot as plt
 #import pickle
 #import statistics
@@ -43,8 +45,8 @@ SAVE_ACKS = True
 print("Starting experiment with nodes: ", nodes) # "using", ENCODE_ALGOS)
 
 # setup the ack listener
-#acks = ack_handler.AckListener(len(nodes))
-acks = ack_handler.AckListener(8)
+acks = ack_handler.AckListener(len(nodes))
+#acks = ack_handler.AckListener(8)
 
 
 # setup shutdown listener
@@ -106,19 +108,9 @@ rank_diff = 0
 msg_correlation = 0
 loss = 0
 saved_acks.append([])
-messages_to_create = 8
-   
+messages_to_create = len(nodes)
 
 # first round is always round robin
-#tid = ((test * num_algos) + algo_index) % 128
-#toSend = algorithms.reduceMessages(msgs, acks.acks, tid, algo="rr")
-#failed = False
-
-#while (len(toSend) > 0 and not failed):
-#    rnd += 1
-
-#if (rnd > 20):
-#    print("spiking with nodes", messages.get_nodes(toSend[0]))
 for i in range(0,messages_to_create):
     message_i = messages.gen_message(i)
     msgs.append(message_i)
@@ -130,9 +122,37 @@ for message in msgs:
     sent += 1
     sleep(0.05)
 
-for i in range(8):
-    if (acks.acks[i][i] == 1):
-        lost_by_owner += 1
+for x in range(0,len(nodes)):
+    print(acks.acks[x])
+
+
+
+for i in range(0,len(nodes)):
+    acks.acks[i][i] = 1
+       
+
+        
+red_matrix = SVD.reduce(acks.acks)
+[rmin,optm]=SVD.APIndexCode(red_matrix)
+
+t = np.zeros((len(nodes),1))
+
+for i in range(0,len(nodes)):
+    if( acks.acks[i][i] == 2):
+        t[i][0] = msgs[i]
+        
+        
+for msg in t:
+    messages.set_messageId_x(msg)
+
+x = SVD_enc.SVDenc(optm,t,rmin)
+m = gen_Matrix_M(optm)
+
+broadcaster.send(x,PORT)
+broadcaster.send(m,PORT)
+
+print(red_matrix)
+print(rmin)
 
 print (lost_by_owner)       
 print("\nShutting down...\n")

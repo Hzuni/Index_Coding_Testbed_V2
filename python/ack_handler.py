@@ -1,6 +1,7 @@
 import udp
 import socket
 import threading
+import numpy as np
 
 ACK_PORT = 5005
 ACK_TIMEOUT = 1
@@ -24,7 +25,8 @@ class AckListener:
         self.run = False
 
     def reset(self):
-        self.acks = [[0 for x in range(self.num_nodes)] for x in range(self.num_nodes)]
+        #self.acks = [[0 for x in range(self.num_nodes)] for x in range(self.num_nodes)]
+        self.acks = np.ones((self.num_nodes,self.num_nodes)) 
         for i in range(len(self.acks)):
             self.acks[i][i] = 1
         
@@ -35,13 +37,13 @@ class AckListener:
             ack = None 
             try:
                 ack = self.sock.recvfrom(ACK_BUFFER)
-                print("Got ack:", ack)
                 data = ack[0]
                 
                 # break of the message into it's info
-                node = int (data[0])
-                msgId = int (data[1])
+                node = int(data[0])
+                msgId = int(data[1])
                  
+                #print(node,msgId)
                 # record the ack
                 self.acks[node][msgId] = 2
 

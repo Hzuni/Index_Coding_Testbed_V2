@@ -3,6 +3,8 @@ import socket, sys, messages
 import decode_manager
 from udp import *
 from ack_handler import *
+import numpy as np
+import SVD_enc
 
 if (len(sys.argv) < 3):
     print("Usage: node.py {id} {num nodes}")
@@ -21,54 +23,74 @@ decoder = decode_manager.DecodeManager(num_nodes)
 
 print("Started node at node", me, " with", num_nodes, "total nodes")
 sys.stdout.flush()
+x = np.zeros((len(nodes),i)
+m = np.zeros(len(nodes),len(nodes))
+zero_count = len(nodes) * len(nodes)
+t_buffer = [] 
+t = np.zeros((len(nodes),i)
 
 while True:
     # Get a message
     recv_msgs = []
     msg = bytearray(rec.rec(100000))
-    #tid = messages.get_test(msg)
-    #coeffs = messages.get_coeffs(msg, num_nodes)
-    #data = messages.get_data(msg)
-    intnd_recep = msg[0]
-    msg_id = 0 
-    byte_sized_msg = msg[1] 
-    print(intnd_recep, byte_sized_msg) 
-    sys.stdout.flush() 
-   
-    lst_rcv_msg = (intnd_recep,msg_id)
-    recv_msgs.append(lst_rcv_msg)
+    
+    if (msg[0] == 'r'): 
+        intnd_recep = msg[0]
+        msg_id = 0 
+        byte_sized_msg = msg[1] 
+        print(intnd_recep, byte_sized_msg) 
+        sys.stdout.flush() 
+        lst_rcv_msg = (intnd_recep,msg_id,byte_sized_msg)
+        recv_msgs.append(lst_rcv_msg)
+        
+    elif(msg[0] == 'x'):
+        t_buffer.append(msg)
+        # need to reconstruct t here from what we get back
 
-
-    #intended to transmit a message with the message id 
-#    ack_sender.ack(me,message_id)
-
-#    if (tid == (last_tid + 1) or (tid != last_tid and tid == 0 and last_tid > 50)):
-#        print("New test... Reseting.\nTID:", tid)
-#        sys.stdout.flush()
-#        decoder.reset()
-#        last_tid = tid
-
-#    new_decoded = []
-#    if not decoder.can_decode(me):
-#        new_decoded = decoder.addMessage(coeffs, data)
-
-#    if me in new_decoded:
-#        decoded = decoder.decode_message(me)
-#        size = len(decoded)
-#        should_be = messages.gen_data(me, size)
-#        if decoded == should_be:
-#            print ("Correctly decoded message")
-#        else:
-#            print ("ERROR: incorrect decoding \nExpected len:", len(should_be), "\nFound:", len(decoded))
-#            print ("Expected message:", should_be, "\nfound:",decoded)
-#        sys.stdout.flush()
-
-    # make sure the AP knows we can decode
-#    if coeffs[me] != 0 and decoder.can_decode(me):
-#        new_decoded.append(me)
+    else:
+        m = msg[1]        
+        
 
     for message in recv_msgs:
-        ack_sender.ack(me, message[0])
-        recv_msgs.remove(message)
+            t[message[0]][0] = message[2]
+            ack_sender.ack(me, message[0])
+            recv_msgs.remove(message)
 
+    while zero_count != 0:
+        zc = 0
+        for i in range(0,len(nodes)):
+            for j in range(0,len(nodes)):
+                if(m[i][j] == 0):
+                    zc = zc + 1
+                    
+        zero_count = zc
+        #know m here need to figure out if vector has arrived yet
+        req_size = ready(M)
+        if (len(t_buffer) == req_size):
+            for( msg in t_buffer):
+                t_index = msg[1]
+                t[t_index] = t_msg
+
+        my_msg = SVD_enc.SVDdec(m,x,me,recv_msgs)
+
+
+        
+
+
+
+
+
+                
+                
+
+               
+
+
+
+
+
+
+               
+         
+                    
 
