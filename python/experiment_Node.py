@@ -23,9 +23,10 @@ decoder = decode_manager.DecodeManager(num_nodes)
 
 print("Started node at node", me, " with", num_nodes, "total nodes")
 sys.stdout.flush()
-x = np.zeros((len(nodes),i)
-m = np.zeros(len(nodes),len(nodes))
-zero_count = len(nodes) * len(nodes)
+x = np.zeros((num_nodes,i)
+m = np.zeros((num_nodes,num_nodes))
+
+zero_count = num_nodes * num_nodes
 t_buffer = [] 
 t = np.zeros((len(nodes),i)
 

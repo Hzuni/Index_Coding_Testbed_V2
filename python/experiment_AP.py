@@ -7,6 +7,7 @@ import sys
 import messages
 from time import sleep,time
 import SVD
+import SVD_enc
 import numpy as np
 #import matplotlib.pyplot as plt
 #import pickle
@@ -80,22 +81,9 @@ msgs_saved = []
 msg_correlations = []
 loss_avg = []
 saved_acks = []
-#for algo_index in range(num_algos):
-#    tests.append([])
-#    rounds.append([])
-#    test_time.append([])
-#    lost_msgs.append([])
-#    lost_by_owner_msgs.append([])
-#    encode_time.append([])
-#    msgs_sent.append([])
-#    msgs_saved.append([])
-#    msg_correlations.append([])
-#    loss_avg.append([])
 
-#for test in range(NUM_TESTS):
-#    for algo_index in range(num_algos):
-#algo = ENCODE_ALGOS[algo_index]
-#print("Starting experiment", test, algo)
+
+print("Starting experiment with SVD")
 sys.stdout.flush()
 rnd = 0
 lost = 0
@@ -108,12 +96,18 @@ rank_diff = 0
 msg_correlation = 0
 loss = 0
 saved_acks.append([])
+N = len(nodes)
 messages_to_create = len(nodes)
 
-# first round is always round robin
+T = np.zeros((N,1))
+
+# Placing the messages inside vector T
 for i in range(0,messages_to_create):
     message_i = messages.gen_message(i)
-    msgs.append(message_i)
+    T[i][0] = message_i
+
+
+
 
 
 for message in msgs:
@@ -122,31 +116,34 @@ for message in msgs:
     sent += 1
     sleep(0.05)
 
-for x in range(0,len(nodes)):
-    print(acks.acks[x])
+M  = acks.acks
+A = np.zeros((N, N))
 
+for i in range(N):
+    for j in range(N):
+        if M[i][j] == 2:
+            A[i][j] = msgs[j]
 
-
-for i in range(0,len(nodes)):
-    acks.acks[i][i] = 1
-       
-
-        
+#send X and M until all receivers have them
 red_matrix = SVD.reduce(acks.acks)
-[rmin,optm]=SVD.APIndexCode(red_matrix)
+[Rmin,OptM]=SVD.APIndexCode(red_matrix)
+X = SVD_enc.SVDenc(OptM,T, Rmin)
+A = np.zeros((N, N))
+for i in range(N):
+    for j in range(N):
+        if M[i][j] == 2:
+            A[i][j] = T[j][0]
+# send X and M until all receivers have them
+end = 1
+# X by N empty matrix, will fill with 1s until everyone has all of X
+U = np.zeros((len(X), N))
+# empty array, will fill with 1s until everyone has M
+G = np.zeros((1, N))
+# Init
+count = 0
+round = 0
 
-t = np.zeros((len(nodes),1))
 
-for i in range(0,len(nodes)):
-    if( acks.acks[i][i] == 2):
-        t[i][0] = msgs[i]
-        
-        
-for msg in t:
-    messages.set_messageId_x(msg)
-
-x = SVD_enc.SVDenc(optm,t,rmin)
-m = gen_Matrix_M(optm)
 
 broadcaster.send(x,PORT)
 broadcaster.send(m,PORT)
