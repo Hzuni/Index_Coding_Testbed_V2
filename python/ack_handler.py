@@ -1,4 +1,3 @@
-import udp
 import socket
 import threading
 import numpy as np
@@ -27,11 +26,18 @@ class AckListener:
     def reset(self):
         #self.acks = [[0 for x in range(self.num_nodes)] for x in range(self.num_nodes)]
         self.acks = np.ones((self.num_nodes,self.num_nodes)) 
-        for i in range(len(self.acks)):
-            self.acks[i][i] = 1
+        self.U = np.zeros(( self.num_nodes,self.num_nodes))
+        # empty array, will fill with 1s until everyone has M
+        self.G = np.zeroes((self.num_nodes,1))
+
+        # for i in range(len(self.acks)):
+        #    self.acks[i][i] = 1
+    def set_U(self,x_len):
+        # set U to be an x by numNodes Matrix
+        self.U = np.zeros((x_len,self.num_nodes))
         
 
-    'This is intended to be run as a thread see the start method'
+    # This is intended to be run as a thread see the start method
     def listen(self):
         while (self.run):
             ack = None 
@@ -41,13 +47,23 @@ class AckListener:
                 
                 # break of the message into it's info
                 node = int(data[0])
-                msgId = int(data[1])
-                 
-                #print(node,msgId)
-                # record the ack
-                self.acks[node][msgId] = 2
+                ack_mode = int(data[1])
 
-            # Timeouts will happen, we dont need to do anything
+                if ack_mode == 'r':
+                    # tells us that the ack was a message
+                    msg_id = int(data[2])
+                    self.acks[node][msg_id] = 2
+
+                elif ack_mode == 'm':
+                    # Node received matrix m
+                    self.G[node][0] = 1
+
+                elif ack_mode == 'x':
+                    # tells us that the ack was for a received message of x
+                    self.U[node][msg_id] = 1
+
+
+            # Timeouts will happen, we don't need to do anything
             except socket.timeout:
                 self.timeouts += 1
 
@@ -69,7 +85,16 @@ class AckSender:
         self.ip = ip
 
     def ack(self, myId, messageId):
-        #print("sending ack for", myId, messageId)
-        msg = bytearray([myId, messageId])
+        #
+        msg = bytearray([myId, 'r', messageId])
+        self.sock.sendto(msg, (self.ip, ACK_PORT))
+
+    def matrix_ack(self, myid):
+    # An acknowledgement telling the AP the matrix has been received
+        msg = bytearray([myid, 'm'])
+        self.sock.sendto(msg, (self.ip, ACK_PORT))
+
+    def x_ack(self, myid, messageId):
+        msg = bytearray([myId, 'x', messageId])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
