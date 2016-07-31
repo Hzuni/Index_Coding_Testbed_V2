@@ -14,7 +14,7 @@ if len(sys.argv) < 3:
 me = int(sys.argv[1])
 num_nodes = int(sys.argv[2])
 
-ack_sender = AckSender("10.42.0.1")
+ack_sender = AckSender("192.168.0.13")
 # above meant to send ack to the AP broadcast address
 
 rec = UdpReceiver(5000)
@@ -22,59 +22,64 @@ decoder = decode_manager.DecodeManager(num_nodes)
 
 print("Started node at node", me, " with", num_nodes, "total nodes")
 sys.stdout.flush()
-
-
 m = np.zeros((num_nodes, num_nodes))
 zero_count = num_nodes * num_nodes
-t_buffer = [] 
-t = np.zeros((num_nodes,1))
+
+r_messages_buffer = np.zeros((num_nodes, 1))
+received_messages = np.zeros((num_nodes, 1))
+x_buffer = []
+x = np.zeros((num_nodes, 1))
+intended_recipient = 0
+byte_sized_msg = -256
+
 
 while True:
     # Get a message
-    recv_msgs = []
+    received_msgs = []
+
     msg = bytearray(rec.rec(100000))
-    
+    msg = msg[0]
+
     if msg[0] == 'r':
-        intnd_recep = msg[0]
-        msg_id = 0 
-        byte_sized_msg = msg[1] 
-        print(intnd_recep, byte_sized_msg) 
-        sys.stdout.flush() 
-        lst_rcv_msg = (intnd_recep,msg_id,byte_sized_msg)
-        recv_msgs.append(lst_rcv_msg)
-        
-    elif msg[0] == 't':
-        t_buffer.append(msg)
+        intended_recipient = msg[1]
+        byte_sized_msg = msg[2]
+        print(intended_recipient, byte_sized_msg)
+        sys.stdout.flush()
+        lst_rcv_msg = (intended_recipient, byte_sized_msg)
+        r_messages_buffer.append(lst_rcv_msg)
+
+    elif msg[0] == 'x':
+        x_buffer.append(msg)
+        # tells AP msg[1] received
+        ack_sender.x_ack(me, msg[1])
         # need to reconstruct t here from buffer
 
-    else:
-        m = msg[1]        
+    elif msg[0] == 'm':
+        m = msg[1]
+        ack_sender.matrix_ack(me)
 
-    for message in recv_msgs:
-            t[message[0]][0] = message[2]
+    for message in r_messages_buffer:
+            received_messages[message[0]][0] = message[1]
+            # tells AP message for i_recv has been received
             ack_sender.ack(me, message[0])
-            recv_msgs.remove(message)
+            r_messages_buffer.remove(message)
 
-    while zero_count != 0:
-        zc = 0
-        for i in range(0,num_nodes):
-            for j in range(0,num_nodes):
-                if m[i][j] == 0:
-                    zc += 1
-
-        zero_count = zc
-        if zc != 0:
-            break
+    for i in range(0, num_nodes):
+        m_ith_row = m[i][:]
+        zeros = np.nonzero(m_ith_row == 0)
+        if len(zeros) > 0:
+            received_m = 0
         else:
-            # know m here need to figure out if m has arrived yet
+            if i == (num_nodes - 1) :
+                received_m = 1
+    if received_m == 1:
+            # know m need to figure out if X has arrived yet
             req_size = SVD_enc.ready(m)
-
-            if len(t_buffer) == req_size:
-                # filling t with t_buffer
-                for msg in t_buffer:
-                    t_index = msg[1]
-                    t[t_index] = msg
-
-                t_buffer = []
-
-        my_msg = SVD_enc.SVDdec(m, t, me, recv_msgs)
+            # keep x in x_buffer till m received
+            if len(x_buffer) == req_size:
+                # filling x with x_buffer
+                for msg in x_buffer:
+                    x_index = msg[1]
+                    x[x_index][0] = msg
+                    x_buffer = []
+                my_msg = SVD_enc.SVDdec(m, x, me, received_msgs)

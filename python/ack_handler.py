@@ -59,7 +59,7 @@ class AckListener:
                     self.G[node][0] = 1
 
                 elif ack_mode == 'x':
-                    # tells us that the ack was for a received message of x
+                    # tells us that node ack was for a received message of x
                     self.U[node][msg_id] = 1
 
 
@@ -81,20 +81,22 @@ class AckSender:
     'Handles the sending of acks so we can have a standard format'
 
     def __init__(self, ip):
+        # type: (object) -> object
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.ip = ip
 
     def ack(self, myId, messageId):
         #
-        msg = bytearray([myId, 'r', messageId])
+        msg = bytearray(['r', myId, messageId])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
     def matrix_ack(self, myid):
-    # An acknowledgement telling the AP the matrix has been received
-        msg = bytearray([myid, 'm'])
+        # An acknowledgement telling the AP the matrix has been received
+        msg = bytearray(['m', myid])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
-    def x_ack(self, myid, messageId):
-        msg = bytearray([myId, 'x', messageId])
+    def x_ack(self,myid, message_id):
+        # An acknowledgement telling AP a message from X has been received
+        msg = bytearray(['x', myid, message_id])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
