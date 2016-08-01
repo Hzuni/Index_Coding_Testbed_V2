@@ -1,6 +1,4 @@
 __author__ = 'mostlychris modified by Hasun'
-import socket, sys, messages
-import decode_manager
 from udp import *
 from ack_handler import *
 import numpy as np
@@ -18,7 +16,7 @@ ack_sender = AckSender("192.168.0.13")
 # above meant to send ack to the AP broadcast address
 
 rec = UdpReceiver(5000)
-decoder = decode_manager.DecodeManager(num_nodes)
+
 
 print("Started node at node", me, " with", num_nodes, "total nodes")
 sys.stdout.flush()
@@ -48,15 +46,22 @@ while True:
         lst_rcv_msg = (intended_recipient, byte_sized_msg)
         r_messages_buffer.append(lst_rcv_msg)
 
-    elif msg[0] == 'x':
+    elif msg[0] == ord('x'):
         x_buffer.append(msg)
+        print msg
         # tells AP msg[1] received
         ack_sender.x_ack(me, msg[1])
         # need to reconstruct t here from buffer
 
-    elif msg[0] == 'm':
+    elif msg[0] == ord('m'):
         m = msg[1]
-        ack_sender.matrix_ack(me)
+        rows = msg[1]
+        columns = msg[2]
+        m = np.zeros((rows, columns))
+        for i in range(0, rows):
+            for j in range(0, columns):
+                index = (rows * i + j + 3)
+                m[i][j] = msg[index]
 
     for message in r_messages_buffer:
             received_messages[message[0]][0] = message[1]

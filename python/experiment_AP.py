@@ -1,11 +1,9 @@
 import udp
-import socket
 import ack_handler
-import algorithms
-import signal 
+import signal
 import sys
 import messages
-from time import sleep,time
+from time import sleep
 import SVD
 import SVD_enc
 import numpy as np
@@ -19,19 +17,10 @@ nodes.sort()
 # Networking
 PORT = 5000
 MY_IP = '10.42.0.1'
-# Dataset
-MSG_LEN = 500
-NUM_TESTS = 10
-# Data cleaning 
-CLEAN_DATA = False # this should probably stay off
-CLEAN_FACTOR = 3
+
 # Timeouts
 ROUNDS_TIMEOUT = 100
-# Aglorithms used 
-# "rr" = Round Robin
-# "ldg" = least difference geedy
-# "svdap" = SVD alternating projection
-#ENCODE_ALGOS = ["rr", "ldg", "svdap"]
+
 # Sleep times
 SLEEP_BROADCASTS = 0.002
 SLEEP_TESTS = 1.0
@@ -43,7 +32,6 @@ print("Starting experiment with nodes: ", nodes) # "using", ENCODE_ALGOS)
 
 # setup the ack listener
 acks = ack_handler.AckListener(len(nodes))
-#acks = ack_handler.AckListener(8)
 
 
 # setup shutdown listener
@@ -62,36 +50,11 @@ broadcaster = udp.UdpBroadcaster(MY_IP)
 
 # generate messages, 1 per nodes right now
 msgs = []
-#msgs = messages.gen_messages(len(nodes), MSG_LEN)
-
-# set up stats
-#num_algos = len(ENCODE_ALGOS)
-tests = []
-rounds = []
-test_time = []
-lost_msgs = []
-lost_by_owner_msgs = []
-encode_time = []
-msgs_sent = []
-msgs_saved = []
-msg_correlations = []
-loss_avg = []
-saved_acks = []
-
+sent = 0
 
 print("Starting experiment with SVD")
 sys.stdout.flush()
-rnd = 0
-lost = 0
-lost_by_owner = 0
-encodings = 0
-encode_time = 0
-sent = 0
-test_start = time()
-rank_diff = 0
-msg_correlation = 0
-loss = 0
-saved_acks.append([])
+
 N = len(nodes)
 messages_to_create = len(nodes)
 

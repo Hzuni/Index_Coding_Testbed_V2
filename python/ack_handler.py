@@ -34,7 +34,7 @@ class AckListener:
         #    self.acks[i][i] = 1
     def set_U(self,x_len):
         # set U to be an x by numNodes Matrix
-        self.U = np.zeros((x_len,self.num_nodes))
+        self.U = np.zeros((x_len, self.num_nodes))
         
 
     # This is intended to be run as a thread see the start method
@@ -46,12 +46,14 @@ class AckListener:
                 data = ack[0]
                 
                 # break of the message into it's info
-                node = int(data[0])
-                ack_mode = int(data[1])
+                ack_mode = int(data[0])
+                node = int(data[1])
 
                 if ack_mode == 'r':
                     # tells us that the ack was a message
                     msg_id = int(data[2])
+
+                    # TODO: Is this the correct format?
                     self.acks[node][msg_id] = 2
 
                 elif ack_mode == 'm':
@@ -60,7 +62,8 @@ class AckListener:
 
                 elif ack_mode == 'x':
                     # tells us that node ack was for a received message of x
-                    self.U[node][msg_id] = 1
+                    msg_id = int(data[2])
+                    self.U[msg_id][node] = 1
 
 
             # Timeouts will happen, we don't need to do anything
@@ -85,18 +88,20 @@ class AckSender:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.ip = ip
 
-    def ack(self, myId, messageId):
-        #
-        msg = bytearray(['r', myId, messageId])
+    def ack(self, myid, message_id):
+        ack_mode = 'r'
+        msg = bytearray([ack_mode, myid, message_id])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
     def matrix_ack(self, myid):
         # An acknowledgement telling the AP the matrix has been received
-        msg = bytearray(['m', myid])
+        ack_mode = 'm'
+        msg = bytearray([ack_mode, myid])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
     def x_ack(self,myid, message_id):
         # An acknowledgement telling AP a message from X has been received
-        msg = bytearray(['x', myid, message_id])
+        ack_mode = 'x'
+        msg = bytearray([ack_mode, myid, message_id])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
