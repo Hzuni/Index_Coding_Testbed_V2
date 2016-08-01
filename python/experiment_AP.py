@@ -58,6 +58,7 @@ sys.stdout.flush()
 N = len(nodes)
 messages_to_create = len(nodes)
 
+# T holds all of the originally created messages
 T = np.zeros((N,1))
 
 # Placing the messages inside vector T
@@ -87,16 +88,20 @@ X = SVD_enc.SVDenc(OptM,T, Rmin)
 A = np.zeros((N, N))
 
 # Construct a matrix A of side info with actual messages
-for i in range(N):
-    for j in range(N):
-        if M[i][j] == 2:
-            A[i][j] = T[j][0]
+#for i in range(N):
+#    for j in range(N):
+#       if M[i][j] == 2:
+#            A[i][j] = T[j][0]
 
 
 # send X and M until all receivers have them
 end = 1
-# X by N empty matrix, will fill with 1s until everyone has all of X
-U = np.zeros((len(X), N))
+
+# X by N empty matrix, will fill with 0s until everyone has all of X
+acks.set_U(len(X))
+
+U = acks.U
+
 # Init
 count = 0
 round = 0
@@ -109,9 +114,7 @@ while end:
             left = np.nonzero(tem == 0)
             # If everyone has X message, don't resend it
             if len(left[0]) > 0:
-                count += 1
-                for j in left[0]:
-                    broadcaster.send(j, PORT)
+                broadcaster.send(X[i], PORT)
         # Send M to everyone
         num_left = np.nonzero(acks.G == 0)
         # If everyone has OptM, don't resend it
@@ -123,9 +126,21 @@ while end:
         # increment round
         round += 1
         zeros = np.nonzero(U == 0)
-        # If everyone has all the messages, exit while loop of sending
+        # If everyone has all the messages and the matrix, exit while loop of sending
         if len(zeros[0]) == 0 and len(num_left[0]) == 0:
             end = 0
+exit = 1
+while (exit):
+   for i in range(N):
+       # IF the receiver that wants the message, has it, don't resend
+       if M[i][i] == 0:
+           count += 1
+           broadcaster.send(T[i])
+
+   round += 1
+   diag = np.nonzero(M == 1)
+   if len(diag[0]) == N:
+       exit = 0
 
 
 print("\nShutting down...\n")

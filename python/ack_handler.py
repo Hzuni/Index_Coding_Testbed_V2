@@ -25,7 +25,7 @@ class AckListener:
 
     def reset(self):
         #self.acks = [[0 for x in range(self.num_nodes)] for x in range(self.num_nodes)]
-        self.acks = np.ones((self.num_nodes,self.num_nodes)) 
+        self.acks = np.zeroes((self.num_nodes,self.num_nodes))
         self.U = np.zeros(( self.num_nodes,self.num_nodes))
         # empty array, will fill with 1s until everyone has M
         self.G = np.zeroes((self.num_nodes,1))
@@ -54,7 +54,10 @@ class AckListener:
                     msg_id = int(data[2])
 
                     # TODO: Is this the correct format?
-                    self.acks[node][msg_id] = 2
+                    if (node == msg_id):
+                        self.acks[node][msg_id] = 1
+                    else:
+                        self.acks[node][msg_id] = 2
 
                 elif ack_mode == 'm':
                     # Node received matrix m
