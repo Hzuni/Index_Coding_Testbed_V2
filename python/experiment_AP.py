@@ -66,6 +66,11 @@ for i in range(0,messages_to_create):
     message_i = messages.gen_message(i)
     T[i][0] = message_i
 
+for i in range(0, messages_to_create):
+    #Prints the random byte each node should be receiving
+    print("Node ", i, "should recieve ", T[i][2] )
+
+
 for message in msgs:
     broadcaster.send(message, PORT)
     sleep(SLEEP_BROADCASTS)
@@ -74,6 +79,10 @@ for message in msgs:
 
 M = acks.acks
 A = np.zeros((N, N))
+
+
+
+
 
 for i in range(N):
     for j in range(N):
