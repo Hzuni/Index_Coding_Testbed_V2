@@ -52,7 +52,7 @@ broadcaster = udp.UdpBroadcaster(MY_IP)
 msgs = []
 sent = 0
 
-print("Running experiment with SVD and RoundRobin")
+print("Running the experiment using SVD and RoundRobin")
 sys.stdout.flush()
 
 N = len(nodes)
