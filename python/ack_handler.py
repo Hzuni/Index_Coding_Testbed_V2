@@ -25,10 +25,10 @@ class AckListener:
 
     def reset(self):
         #self.acks = [[0 for x in range(self.num_nodes)] for x in range(self.num_nodes)]
-        self.acks = np.zeroes((self.num_nodes,self.num_nodes))
+        self.acks = np.zeros((self.num_nodes,self.num_nodes))
         self.U = np.zeros(( self.num_nodes,self.num_nodes))
         # empty array, will fill with 1s until everyone has M
-        self.G = np.zeroes((self.num_nodes,1))
+        self.G = np.zeros((self.num_nodes,1))
 
         # for i in range(len(self.acks)):
         #    self.acks[i][i] = 1

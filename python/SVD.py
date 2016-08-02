@@ -164,7 +164,7 @@ def singletest(N, p):
     print(rMin)
 
 #singletest(10, .1)
-test()
+#test()
 '''
 M = prepare(10, .7)
 print(M)
