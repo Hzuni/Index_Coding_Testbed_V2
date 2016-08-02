@@ -52,7 +52,7 @@ broadcaster = udp.UdpBroadcaster(MY_IP)
 msgs = []
 sent = 0
 
-print("Starting experiment with SVD")
+print("Running experiment with SVD and RoundRobin")
 sys.stdout.flush()
 
 N = len(nodes)
@@ -68,8 +68,7 @@ for i in range(0,messages_to_create):
 
 for i in range(0, messages_to_create):
     #Prints the random byte each node should be receiving
-    print("Node ", i, "should recieve ", T[i][2] )
-
+    print("Node ", i, "should recieve ", T[i][i] )
 
 for message in msgs:
     broadcaster.send(message, PORT)
@@ -80,18 +79,14 @@ for message in msgs:
 M = acks.acks
 A = np.zeros((N, N))
 
-
-
-
-
 for i in range(N):
     for j in range(N):
         if M[i][j] == 2:
             A[i][j] = msgs[j]
 
 # send X and M until all receivers have them
-red_matrix = SVD.reduce(acks.acks)
-[Rmin,OptM] = SVD.APIndexCode(red_matrix)
+#red_matrix = SVD.reduce(acks.acks)
+[Rmin,OptM] = SVD.APIndexCode(acks.acks)
 
 X = SVD_enc.SVDenc(OptM,T, Rmin)
 A = np.zeros((N, N))
@@ -138,7 +133,10 @@ while end:
         # If everyone has all the messages and the matrix, exit while loop of sending
         if len(zeros[0]) == 0 and len(num_left[0]) == 0:
             end = 0
+print("Count value for SVD is:", count)
+
 exit = 1
+
 while (exit):
    for i in range(N):
        # IF the receiver that wants the message, has it, don't resend
@@ -150,6 +148,7 @@ while (exit):
    diag = np.nonzero(M == 1)
    if len(diag[0]) == N:
        exit = 0
+print("Count value for RR is:", count)
 
 
 print("\nShutting down...\n")

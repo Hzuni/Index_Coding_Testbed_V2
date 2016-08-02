@@ -88,4 +88,4 @@ while True:
                     x[x_index][0] = msg
                     x_buffer = []
                 my_msg = SVD_enc.SVDdec(m, x, me, received_msgs)
-                print my_msg
+                print ("My message is ", my_msg)
