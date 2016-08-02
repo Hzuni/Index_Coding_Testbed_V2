@@ -49,7 +49,6 @@ acks.start()
 broadcaster = udp.UdpBroadcaster(MY_IP)
 
 # generate messages, 1 per nodes right now
-msgs = []
 sent = 0
 
 print("Running the experiment using SVD and RoundRobin")
@@ -60,43 +59,31 @@ messages_to_create = len(nodes)
 
 # T holds all of the originally created messages
 T = np.zeros((N,1))
+T_msgs = []
 
 # Placing the messages inside vector T
 for i in range(0,messages_to_create):
     message_i = messages.gen_message(i)
-    T[i][0] = message_i
+    T_msgs.append(message_i)
+    T[i][0] = int(message_i[2])
 
 for i in range(0, messages_to_create):
     #Prints the random byte each node should be receiving
     print("Node ", i, "should recieve ", T[i][i] )
 
-for message in msgs:
+for message in T_msgs:
     broadcaster.send(message, PORT)
     sleep(SLEEP_BROADCASTS)
     sent += 1
     sleep(0.05)
 
 M = acks.acks
-A = np.zeros((N, N))
-
-for i in range(N):
-    for j in range(N):
-        if M[i][j] == 2:
-            A[i][j] = msgs[j]
 
 # send X and M until all receivers have them
 #red_matrix = SVD.reduce(acks.acks)
 [Rmin,OptM] = SVD.APIndexCode(acks.acks)
 
 X = SVD_enc.SVDenc(OptM,T, Rmin)
-A = np.zeros((N, N))
-
-# Construct a matrix A of side info with actual messages
-#for i in range(N):
-#    for j in range(N):
-#       if M[i][j] == 2:
-#            A[i][j] = T[j][0]
-
 
 # send X and M until all receivers have them
 end = 1
@@ -116,15 +103,18 @@ while end:
         for i in range(len(X)):
             tem = U[i][:]
             left = np.nonzero(tem == 0)
-            # If everyone has X message, don't resend it
+            # If everyone has X messages, don't resend it
             if len(left[0]) > 0:
+                xmessage_i = messages.
                 broadcaster.send(X[i], PORT)
+
         # Send M to everyone
         num_left = np.nonzero(acks.G == 0)
         # If everyone has OptM, don't resend it
         if len(num_left[0]) > 0:
             count += 1
-            broadcaster.send(OptM, PORT)
+            optm_message = messages.gen_Matrix_M(OptM)
+            broadcaster.send(optm_message, PORT)
             num_left = np.nonzero(acks.G == 0)
 
         # increment round
