@@ -16,11 +16,11 @@ def gen_message(i_recv):
     msg.append(byte)
     return bytearray(msg)
     
-def gen_X_message(i_recv, x_msg):
+def gen_X_message(index, x_msg):
     msg = []
     msg_id = 'x'
     msg.append(msg_id)
-    msg.append(i_recv)
+    msg.append(index)
     msg = bytearray(msg)
     x_msg_ba = bytearray(struct.pack("d",x_msg))
     for i in range (0,len(x_msg_ba)):
