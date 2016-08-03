@@ -85,6 +85,10 @@ M = acks.acks
 
 # send X and M until all receivers have them
 #red_matrix = SVD.reduce(acks.acks)
+print("The input to SVD.APIndexCode is",    acks.acks)
+
+sys.stdout.flush()
+
 [Rmin,OptM] = SVD.APIndexCode(acks.acks)
 
 print(OptM)
