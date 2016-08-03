@@ -105,7 +105,7 @@ while end:
             left = np.nonzero(tem == 0)
             # If everyone has X messages, don't resend it
             if len(left[0]) > 0:
-                xmessage_i = messages.
+                xmessage_i = messages.gen_X_message(i,X[i])
                 broadcaster.send(X[i], PORT)
 
         # Send M to everyone

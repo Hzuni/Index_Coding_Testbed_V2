@@ -37,8 +37,11 @@ def gen_Matrix_M(m):
     msg.append(msg_id)
     msg.append(rows)
     msg.append(columns)
+    msg = bytearray(msg)
     for i in range(0,rows):
         for j in range(0, columns):
-            msg.append(ord(bytes(m[i][j])[0]) - ord('0'))
-            print(m[i][j])
-    return bytearray(msg)
+            j_msg = m[i][j]
+            j_msg_ba = bytearray(struct.pack("d", j_msg))
+            for k in range(0, len(j_msg_ba)):
+                msg.append(j_msg_ba[i])
+    return msg
