@@ -1,4 +1,4 @@
-__author__ = 'mostlychris modified by Hasun'
+__author__ = 'Hasun'
 from udp import *
 from ack_handler import *
 import numpy as np
@@ -57,20 +57,18 @@ while True:
         # need to reconstruct t here from buffer
 
     elif msg_received[0] == ord('m'):
-        #m = msg_received[1]
+        recieved_m = 1 
         rows = msg_received[1]
         columns = msg_received[2]
         m = np.zeros((rows, columns))
-
         for i in range(0, rows):
-            for j in range(0, columns):
-                m_ij_bytes =[]
-                for k in range(0, 8):
-                    byte_k = ( (i * columns * 8) + (j*8) + 3)
-                    m_ij_bytes.append(msg_received[byte_k])
-
-                m[i][j] = struct.unpack("d", bytearray(m_ij_bytes))
-
+			for j in range(0, columns):
+				m_ij_bytes = bytearray()
+				for k in range(0, 8):
+					byte_k = ( (i * columns * 8) + (j*8) + k+ 3)
+					m_ij_bytes.append(msg_received[byte_k])
+				recv_dbl = struct.unpack("d",m_ij_bytes)	
+				m[i][j] = recv_dbl[0]       
         print(m)
 
 
@@ -81,15 +79,6 @@ while True:
             ack_sender.ack(me, message[0])
             r_messages_buffer.remove(message)
 
-    for i in range(0, num_nodes):
-        m_ith_row = m[i][:]
-        zeros = np.nonzero(m_ith_row == 0)
-        if len(zeros) > 0:
-            received_m = 0
-        else:
-            if i == (num_nodes - 1):
-                received_m = 1
-
     if received_m == 1:
             # know m need to figure out if X has arrived yet
             req_size = SVD_enc.ready(m)
@@ -98,7 +87,7 @@ while True:
                 # filling x with x_buffer
                 for msg_received in x_buffer:
                     x_index = msg_received[1]
-                    msg_x_bytes = []
+                    msg_x_bytes = bytearray()
                     for byte_j in range(2, len(msg_received)):
                         msg_x_bytes.append(msg_received[byte_j])
 
