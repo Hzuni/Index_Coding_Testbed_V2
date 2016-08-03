@@ -29,11 +29,6 @@ def gen_X_message(index, x_msg):
     print(msg)
     return msg
 
-
-    # Building the message
-
-    return msg
-
 def gen_Matrix_M(m):
     msg = []
     msg_id = 'm'
