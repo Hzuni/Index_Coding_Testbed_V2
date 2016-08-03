@@ -27,8 +27,6 @@ def gen_X_message(index, x_msg):
     x_msg_ba = bytearray(struct.pack("d", x_msg))
     for i in range(0, len(x_msg_ba)):
         msg.append(x_msg_ba[i])
-
-    print(msg)
     return msg
 
 
@@ -42,10 +40,10 @@ def gen_Matrix_M(m):
     msg.append(columns)
     msg = bytearray(msg)
     for i in range(0, rows):
-	    for j in range(0, columns):
-		    j_msg = m[i][j]
-		    j_msg_ba = bytearray(struct.pack("d", j_msg))
-		    for b in j_msg_ba:
-		        msg.append(b)
+        for j in range(0, columns):
+            j_msg = m[i][j]
+            j_msg_ba = bytearray(struct.pack("d", j_msg))
+            for b in j_msg_ba:
+                msg.append(b)
     
     return bytearray(msg)

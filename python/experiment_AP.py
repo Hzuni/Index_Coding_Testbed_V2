@@ -99,6 +99,8 @@ round = 0
 
 
 while end:
+        U = acks.U
+        x_num_sent = 0
         # Send all messages of X
         for i in range(len(X)):
             tem = U[i][:]
@@ -107,6 +109,8 @@ while end:
             if len(left[0]) > 0:
                 xmessage_i = messages.gen_X_message(i,X[i])
                 broadcaster.send(X[i], PORT)
+            else:
+                x_num_sent+=1
 
         # Send M to everyone
         num_left = np.nonzero(acks.G == 0)
@@ -121,7 +125,7 @@ while end:
         round += 1
         zeros = np.nonzero(U == 0)
         # If everyone has all the messages and the matrix, exit while loop of sending
-        if len(zeros[0]) == 0 and len(num_left[0]) == 0:
+        if len(zeros[0]) == 0 and len(x) == x_num_sent:
             end = 0
 print("Count value for SVD is:", count)
 
