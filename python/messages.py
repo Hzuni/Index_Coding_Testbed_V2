@@ -8,7 +8,7 @@ def gen_message(i_recv):
     msg = []
     rand = random.Random()
     rand.seed(i_recv)
-    msg_id = 'r'
+    msg_id = ord('r')
     msg.append(msg_id)
     # Building the message
     msg.append(i_recv)
@@ -20,7 +20,7 @@ def gen_message(i_recv):
 
 def gen_X_message(index, x_msg):
     msg = []
-    msg_id = 'x'
+    msg_id = ord('x')
     msg.append(msg_id)
     msg.append(index)
     msg = bytearray(msg)
