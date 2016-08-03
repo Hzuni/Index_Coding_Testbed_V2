@@ -4,6 +4,7 @@ from ack_handler import *
 import numpy as np
 import SVD_enc
 import struct
+import sys
 
 if len(sys.argv) < 3:
     print("Usage: node.py {id} {num nodes}")

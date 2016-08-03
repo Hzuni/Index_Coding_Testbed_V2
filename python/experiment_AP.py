@@ -1,3 +1,4 @@
+__author__ = 'Hasun'
 import udp
 import ack_handler
 import signal
@@ -7,6 +8,7 @@ from time import sleep
 import SVD
 import SVD_enc
 import numpy as np
+
 
 # Static Variables
 nodes = sys.argv[1].split()
@@ -71,6 +73,8 @@ for i in range(0, messages_to_create):
     #Prints the random byte each node should be receiving
     print("Node ", i, "should recieve ", T[i][0] )
 
+sys.stdout.flush()
+
 for message in T_msgs:
     broadcaster.send(message, PORT)
     sleep(SLEEP_BROADCASTS)
@@ -82,6 +86,9 @@ M = acks.acks
 # send X and M until all receivers have them
 #red_matrix = SVD.reduce(acks.acks)
 [Rmin,OptM] = SVD.APIndexCode(acks.acks)
+
+print(OptM)
+sys.stdout.flush()
 
 X = SVD_enc.SVDenc(OptM,T, Rmin)
 
