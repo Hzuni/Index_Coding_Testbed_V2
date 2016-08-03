@@ -69,7 +69,7 @@ for i in range(0,messages_to_create):
 
 for i in range(0, messages_to_create):
     #Prints the random byte each node should be receiving
-    print("Node ", i, "should recieve ", T[i][i] )
+    print("Node ", i, "should recieve ", T[i][0] )
 
 for message in T_msgs:
     broadcaster.send(message, PORT)
