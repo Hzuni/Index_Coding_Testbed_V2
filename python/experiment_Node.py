@@ -25,7 +25,7 @@ sys.stdout.flush()
 m = np.zeros((num_nodes, num_nodes))
 zero_count = num_nodes * num_nodes
 
-r_messages_buffer = np.zeros((num_nodes, 1))
+r_messages_buffer = []
 received_messages = np.zeros((num_nodes, 1))
 x_buffer = []
 x = np.zeros((num_nodes, 1))
@@ -38,7 +38,7 @@ while True:
     # Get a message
     received_msgs = []
     msg_received = bytearray(rec.rec(100000))
-    msg_received = msg_received[0]
+    # msg_received = msg_received[0]
 
     if msg_received[0] == ord('r'):
         intended_recipient = msg_received[1]
