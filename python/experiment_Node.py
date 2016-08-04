@@ -40,7 +40,7 @@ while True:
     msg_received = bytearray(rec.rec(100000))
     msg_received = msg_received[0]
 
-    if msg_received[0] == 'r':
+    if msg_received[0] == ord('r'):
         intended_recipient = msg_received[1]
         byte_sized_msg = msg_received[2]
         print("Node" , me , "received on initial transmission:",byte_sized_msg, "meant for", intended_recipient)
