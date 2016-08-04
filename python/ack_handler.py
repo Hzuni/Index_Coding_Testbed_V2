@@ -44,7 +44,8 @@ class AckListener:
             try:
                 ack = self.sock.recvfrom(ACK_BUFFER)
                 data = ack[0]
-                
+                print(data)
+
                 # break of the message into it's info
                 ack_mode = int(data[0])
                 node = int(data[1])
@@ -52,7 +53,6 @@ class AckListener:
                 if ack_mode == 'r':
                     # tells us that the ack was a message
                     msg_id = int(data[2])
-
                     # TODO: Is this the correct format?
                     if (node == msg_id):
                         self.acks[node][msg_id] = 1

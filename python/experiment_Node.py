@@ -14,7 +14,7 @@ if len(sys.argv) < 3:
 me = int(sys.argv[1])
 num_nodes = int(sys.argv[2])
 
-ack_sender = AckSender("192.168.0.13")
+ack_sender = AckSender("10.42.0.1")
 # above meant to send ack to the AP broadcast address
 
 rec = UdpReceiver(5000)
@@ -43,7 +43,7 @@ while True:
     if msg_received[0] == 'r':
         intended_recipient = msg_received[1]
         byte_sized_msg = msg_received[2]
-        print("reieved on initial transmission:", intended_recipient, byte_sized_msg)
+        print("Node" , me , "received on initial transmission:",byte_sized_msg, "meant for", intended_recipient)
         sys.stdout.flush()
         lst_rcv_msg = (intended_recipient, byte_sized_msg)
         r_messages_buffer.append(lst_rcv_msg)
