@@ -70,7 +70,7 @@ while True:
                     m_ij_bytes.append(msg_received[byte_k])
                 recv_dbl = struct.unpack("d",m_ij_bytes)
                 m[i][j] = recv_dbl[0]
-        #print(m)
+        print(m)
 
 
 

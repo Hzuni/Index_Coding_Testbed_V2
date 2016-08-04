@@ -85,13 +85,13 @@ M = acks.acks
 
 # send X and M until all receivers have them
 #red_matrix = SVD.reduce(acks.acks)
-print("The input to SVD.APIndexCode is",    acks.acks)
+print("The input to SVD.APIndexCode is: \n",    acks.acks , "\n")
 
 sys.stdout.flush()
 
 [Rmin,OptM] = SVD.APIndexCode(acks.acks)
 
-print(OptM)
+print("The SVD encoded matrix M is\n \n",OptM)
 sys.stdout.flush()
 
 X = SVD_enc.SVDenc(OptM,T, Rmin)

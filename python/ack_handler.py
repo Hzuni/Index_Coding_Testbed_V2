@@ -45,11 +45,8 @@ class AckListener:
             try:
                 ack = self.sock.recvfrom(ACK_BUFFER)
                 data = ack[0]
-                print(ack)
-                print(data)
                 # break of the message into it's info
                 ack_mode = int(data[0])
-                print(ack_mode)
                 sys.stdout.flush()
                 node = int(data[1])
 
