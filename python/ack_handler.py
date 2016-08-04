@@ -53,7 +53,7 @@ class AckListener:
                 sys.stdout.flush()
                 node = int(data[1])
 
-                if ack_mode == 'r':
+                if ack_mode == ord('r'):
                     # tells us that the ack was a message
                     msg_id = int(data[2])
                     # TODO: Is this the correct format?
@@ -62,11 +62,11 @@ class AckListener:
                     else:
                         self.acks[node][msg_id] = 2
 
-                elif ack_mode == 'm':
+                elif ack_mode == ord('m'):
                     # Node received matrix m
                     self.G[node][0] = 1
 
-                elif ack_mode == 'x':
+                elif ack_mode == ord('x'):
                     # tells us that node ack was for a received message of x
                     msg_id = int(data[2])
                     self.U[msg_id][node] = 1
@@ -95,19 +95,19 @@ class AckSender:
         self.ip = ip
 
     def ack(self, myid, message_id):
-        ack_mode = 'r'
+        ack_mode = ord('r')
         msg = bytearray([ack_mode, myid, message_id])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
     def matrix_ack(self, myid):
         # An acknowledgement telling the AP the matrix has been received
-        ack_mode = 'm'
+        ack_mode = ord('m')
         msg = bytearray([ack_mode, myid])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
     def x_ack(self,myid, message_id):
         # An acknowledgement telling AP a message from X has been received
-        ack_mode = 'x'
+        ack_mode = ord('x')
         msg = bytearray([ack_mode, myid, message_id])
         self.sock.sendto(msg, (self.ip, ACK_PORT))
 
