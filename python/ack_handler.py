@@ -48,6 +48,7 @@ class AckListener:
 
                 # break of the message into it's info
                 ack_mode = int(data[0])
+                print(ack_mode)
                 node = int(data[1])
 
                 if ack_mode == 'r':
